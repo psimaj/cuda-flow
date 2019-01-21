@@ -1,5 +1,6 @@
 #include <iostream>
 #include "flow.h"
+#include <chrono>
 using namespace std;
 
 void relabel(node & u, int h) {
@@ -89,7 +90,7 @@ void cancel_bad_flow(int n, int s, int t, vector<node> &V, vector<edge> &E) {
 
 void compute_flow(int n, int s, int t, vector<node> &V, vector<edge> &E) {
 	int excess_sum = -1;
-	int CYCLE = 500;
+	int CYCLE = 20;
 	while (excess_sum != 0) {
 		//cout << excess_sum << endl;
 		for (int z = 0; z < CYCLE; z++) {
@@ -113,7 +114,9 @@ void compute_flow_gpu_on_cpu(int n, int m, int s, int t, vector<vector<edge>> &G
 	vector<edge> E;
 	init_graph(n,s,t,V,E,G);
 	init_flow(n,s,t,V,E);
+	auto start = chrono::steady_clock::now();
 	compute_flow(n,s,t,V,E);
+	auto stop = chrono::steady_clock::now();
+    cout << "Execution time: " << chrono::duration_cast<chrono::microseconds>(stop-start).count() << " us" << endl;
 	cout << "Flow : " << V[t].excess << " gpu on cpu" << endl;
-
 }

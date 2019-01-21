@@ -8,13 +8,14 @@ inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=t
 }
 #include <iostream>
 #include "flow.h"
+#include <chrono>
 using namespace std;
 
-__device__ void relabel_gpu(node & u, int h) {
+inline __device__ void relabel_gpu(node & u, int h) {
 	u.height = h+1;
 }
 
-__device__ void push_gpu(node & u, node & v, edge & e, edge *E) {
+inline __device__ void push_gpu(node & u, node & v, edge & e, edge *E) {
 	edge & back  = E[e.mate];
 	int d = min(u.excess, e.capacity);
 	atomicSub(&e.capacity,d);
@@ -35,7 +36,7 @@ __global__ void push_relabel_kernel(int n, int s, int t, node *V, edge *E) {
 	}
 	node &u = V[i];
 	
-	int CYCLE = 500;
+	int CYCLE = 7000;
 	for (int z = 0; z < CYCLE; z++) {
 		if (u.excess == 0 || u.height >= n) {
 			continue;
@@ -123,7 +124,7 @@ void compute_flow_gpu(int n, int s, int t, vector<node> &V, vector<edge> &E) {
 	while (excess_sum != 0) {
 		gpuErrchk(cudaMemcpy(dev_V, V.data(), sizeof(node)*(n+1), cudaMemcpyHostToDevice));
 
-		push_relabel_kernel<<<1,1024>>>(n,s,t,dev_V,dev_E);
+		push_relabel_kernel<<<n/1024 + 1,1024>>>(n,s,t,dev_V,dev_E);
 
 		gpuErrchk(cudaMemcpy(V.data(), dev_V, sizeof(node)*(n+1), cudaMemcpyDeviceToHost));
 		gpuErrchk(cudaMemcpy(E.data(), dev_E, sizeof(edge)*E.size(), cudaMemcpyDeviceToHost));
@@ -142,6 +143,9 @@ void compute_flow_gpu(int n, int m, int s, int t, vector<vector<edge>> &G) {
 	vector<edge> E;
 	init_graph(n,s,t,V,E,G);
 	init_flow(n,s,t,V,E);
+	auto start = chrono::steady_clock::now();
 	compute_flow_gpu(n,s,t,V,E);
+	auto stop = chrono::steady_clock::now();
+    cout << "Execution time: " << chrono::duration_cast<chrono::microseconds>(stop-start).count() << " us" << endl;
 	cout << "Flow : " << V[t].excess << " gpu" << endl;
 }
