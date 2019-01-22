@@ -28,7 +28,7 @@ n = int(sys.argv[1])
 m = 2 * n * (n - 1)
 max_edge_cap = int(sys.argv[2])
 
-print(n, m, 1, n**2)
+print(n**2, m, 1, n**2)
 
 for i in range(1, n+1):
     for j in range(1, n):
