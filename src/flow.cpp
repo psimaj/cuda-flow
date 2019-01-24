@@ -37,9 +37,13 @@ void init_flow(int n, int s, int t, vector<node> &V, vector<edge> &E, queue<int>
 	for (int i = V[s].edges_begin; i < V[s].edges_end; i++) {
 		edge & e = E[i];
 		edge & back = E[E[i].mate];
-		V[e.vertex].excess = back.capacity = e.capacity;
-		e.capacity = 0;
-		if (e.vertex != t) {
+		if (e.capacity == 0) {
+            continue;
+        }
+        back.capacity = e.capacity;
+        e.capacity = 0;
+		V[e.vertex].excess += back.capacity;
+        if (e.vertex != t) {
 			Q.push(e.vertex);
 		}
 	}

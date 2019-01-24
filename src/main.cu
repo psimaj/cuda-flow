@@ -13,6 +13,7 @@ vector<vector<edge>> G;
 
 int main() {
 	ios_base::sync_with_stdio(false);
+	cudaSetDevice(3);
 	int n,m,s,t;
 	cin >> n >> m >> s >> t;
 	G.resize(n+1);
@@ -21,8 +22,8 @@ int main() {
 		cin >> a >> b >> c;
 		add_edge(a,b,c,G);
 	}
+	compute_flow_gpu(n,m,s,t,G);
 	compute_flow_cpu(n,m,s,t,G);
 	compute_flow_gpu_on_cpu(n,m,s,t,G);
-	compute_flow_gpu(n,m,s,t,G);
 	
 }
