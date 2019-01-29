@@ -1,9 +1,3 @@
-/*
-Zalozenia do sieci przeplywowej
-	brak auto krawedzi
-	miedzy kazda para wierzcholkow co najwyzej jedna skierowana krawedz
-*/
-
 #include <iostream>
 #include <vector>
 #include "flow.h"
